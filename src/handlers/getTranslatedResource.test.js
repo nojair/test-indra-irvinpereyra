@@ -10,22 +10,22 @@ describe('Lambda getSavedEntity Handler', () => {
 
   it('should return 200 and the character if found', async () => {
     const event = {
-      pathParameters: { id: '1' }
+      pathParameters: { event_id: '1' }
     };
     
     EntityManagerInstance.getSavedEntity.mockResolvedValueOnce({
-      Item: { id: '1', name: 'Resource Name' }
+      Item: { event_id: '1' }
     });
 
     const response = await handler(event);
 
     expect(response.statusCode).toBe(200);
-    expect(JSON.parse(response.body)).toEqual({ id: '1', name: 'Resource Name' });
+    expect(JSON.parse(response.body)).toEqual({ event_id: '1' });
   });
 
   it('should return 404 if the Resource is not found', async () => {
     const event = {
-      pathParameters: { id: '2' }
+      pathParameters: { event_id: '2' }
     };
     
     EntityManagerInstance.getSavedEntity.mockResolvedValueOnce({
@@ -40,7 +40,7 @@ describe('Lambda getSavedEntity Handler', () => {
 
   it('should return 500 if there is an error fetching the Resource', async () => {
     const event = {
-      pathParameters: { id: '1' }
+      pathParameters: { event_id: '1' }
     };
 
     EntityManagerInstance.getSavedEntity.mockRejectedValueOnce(new Error('Database error'));

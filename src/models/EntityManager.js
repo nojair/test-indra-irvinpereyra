@@ -22,14 +22,12 @@ class EntityManager {
   commandToCreateEntity(attributes) {
     const entity_id = ulid();
     const PK = `ENTITY#${entity_id}`;
-    const SK = `PURE_ENTITY`;
 
     return {
       command: new PutCommand({
         TableName: dbClientInstance.getConfig().TABLE_NAME,
         Item: {
           PK,
-          SK,
           ...attributes,
         }
       }),
@@ -39,7 +37,6 @@ class EntityManager {
 
   async createEntity(attributes) {
     const { command, entity_id } = this.commandToCreateEntity(attributes);
-    console.log('entity_id', entity_id)
     await this.docDbClient.send(command);
     return { entity_id };
   }
@@ -47,10 +44,9 @@ class EntityManager {
   commandToGetEntity(entity_id) {
     return new QueryCommand({
       TableName: dbClientInstance.getConfig().TABLE_NAME,
-      KeyConditionExpression: 'PK = :pk AND SK = :sk',
+      KeyConditionExpression: 'PK = :pk',
       ExpressionAttributeValues: {
-        ':pk': { S: `ENTITY#${entity_id}` },
-        ':sk': { S: 'PURE_ENTITY' }
+        ':pk': { S: `ENTITY#${entity_id}` }
       }
     });
   }
