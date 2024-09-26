@@ -1,0 +1,270 @@
+org: mayantu
+
+service: test-indra-api
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:us-east-1:*:table/TestIndraTable
+
+functions:
+  getTranslatedResource:
+    handler: src/handlers/getTranslatedResource.handler
+    events:
+      - http:
+          path: swapi/{resourceType}/{id}
+          method: get
+          cors: true
+          documentation:
+            summary: "Obtener un personaje por TIPO DE RECURSO y ID"
+            description: "Devuelve un recurso específico de SWAPI dado su RESOURCETYPE (films, people, planets, species, starships, vehicles) y ID."
+            requestBody:
+              description: "No se requiere cuerpo en una solicitud GET."
+            parameters:
+              - name: resourceType
+                in: path
+                required: true
+                description: "Tipo de recurso (films, people, planets, species, starships, vehicles)."
+                schema:
+                  type: string
+              - name: id
+                in: path
+                required: true
+                description: "ID del recurso específico."
+                schema:
+                  type: string
+            responses:
+              200:
+                description: "Recurso encontrado"
+                bodyType: "EntityResponse"
+              404:
+                description: "Recurso no encontrado"
+              500:
+                description: "Error interno del servidor"
+
+  createEntity:
+    handler: src/handlers/createEntity.handler
+    events:
+      - http:
+          path: entities
+          method: post
+          cors: true
+          documentation:
+            summary: "Guarda un recurso de SWAPI en DynamoDB"
+            description: "Crea un nuevo recurso en la base de datos."
+            requestBody:
+              description: "Objeto que representa la entidad a crear, con propiedades traducidas."
+              required: true
+              schema:
+                type: "object"
+                properties:
+                  titulo:
+                    type: "string"
+                    description: "Titulo del recurso."
+                  episodio_id:
+                    type: "integer"
+                    description: "ID del episodio (solo para films)."
+                  rastreo_inicial:
+                    type: "string"
+                    description: "Texto inicial (solo para films)."
+                  director:
+                    type: "string"
+                    description: "Director del film (solo para films)."
+                  productor:
+                    type: "string"
+                    description: "Productor del film (solo para films)."
+                  fecha_de_lanzamiento:
+                    type: "string"
+                    format: "date"
+                    description: "Fecha de lanzamiento (solo para films)."
+                  nombre:
+                    type: "string"
+                    description: "Nombre del recurso (para personas, planetas, especies, naves, vehiculos)."
+                  altura:
+                    type: "number"
+                    description: "Altura (solo para personas)."
+                  peso:
+                    type: "number"
+                    description: "Peso (solo para personas)."
+                  color_de_cabello:
+                    type: "string"
+                    description: "Color de cabello (solo para personas)."
+                  color_de_piel:
+                    type: "string"
+                    description: "Color de piel (solo para personas)."
+                  color_de_ojos:
+                    type: "string"
+                    description: "Color de ojos (solo para personas)."
+                  ano_de_nacimiento:
+                    type: "string"
+                    description: "Ano de nacimiento (solo para personas)."
+                  genero:
+                    type: "string"
+                    description: "Genero (solo para personas)."
+                  periodo_de_rotacion:
+                    type: "integer"
+                    description: "Periodo de rotacion (solo para planetas)."
+                  periodo_orbital:
+                    type: "integer"
+                    description: "Periodo orbital (solo para planetas)."
+                  diametro:
+                    type: "number"
+                    description: "Diametro (solo para planetas)."
+                  clima:
+                    type: "string"
+                    description: "Clima (solo para planetas)."
+                  gravedad:
+                    type: "string"
+                    description: "Gravedad (solo para planetas)."
+                  terreno:
+                    type: "string"
+                    description: "Terreno (solo para planetas)."
+                  agua_superficial:
+                    type: "number"
+                    description: "Agua superficial (solo para planetas)."
+                  poblacion:
+                    type: "integer"
+                    description: "Poblacion (solo para planetas)."
+            responses:
+              201:
+                description: "Entidad creada exitosamente."
+              500:
+                description: "Error interno del servidor."
+
+  getSavedEntity:
+    handler: src/handlers/getSavedEntity.handler
+    events:
+      - http:
+          path: entities/{entity_id}
+          method: get
+          cors: true
+          documentation:
+            summary: "Obtener una entidad guardada"
+            description: "Recupera una entidad guardada en la base de datos utilizando su ID."
+            requestParameters:
+              - name: entity_id
+                required: true
+                description: "El ID de la entidad que se desea recuperar."
+                type: "string"
+            responses:
+              200:
+                description: "Entidad encontrada y devuelta correctamente."
+                schema:
+                  type: "object"
+                  properties:
+                    entity_id:
+                      type: "string"
+                      description: "ID de la entidad."
+                    titulo:
+                      type: "string"
+                      description: "Titulo del recurso."
+                    episodio_id:
+                      type: "integer"
+                      description: "ID del episodio (solo para films)."
+                    rastreo_inicial:
+                      type: "string"
+                      description: "Texto inicial (solo para films)."
+                    director:
+                      type: "string"
+                      description: "Director del film (solo para films)."
+                    productor:
+                      type: "string"
+                      description: "Productor del film (solo para films)."
+                    fecha_de_lanzamiento:
+                      type: "string"
+                      format: "date"
+                      description: "Fecha de lanzamiento (solo para films)."
+                    nombre:
+                      type: "string"
+                      description: "Nombre del recurso (para personas, planetas, especies, naves, vehiculos)."
+                    altura:
+                      type: "number"
+                      description: "Altura (solo para personas)."
+                    peso:
+                      type: "number"
+                      description: "Peso (solo para personas)."
+                    color_de_cabello:
+                      type: "string"
+                      description: "Color de cabello (solo para personas)."
+                    color_de_piel:
+                      type: "string"
+                      description: "Color de piel (solo para personas)."
+                    color_de_ojos:
+                      type: "string"
+                      description: "Color de ojos (solo para personas)."
+                    ano_de_nacimiento:
+                      type: "string"
+                      description: "Ano de nacimiento (solo para personas)."
+                    genero:
+                      type: "string"
+                      description: "Genero (solo para personas)."
+                    periodo_de_rotacion:
+                      type: "integer"
+                      description: "Periodo de rotacion (solo para planetas)."
+                    periodo_orbital:
+                      type: "integer"
+                      description: "Periodo orbital (solo para planetas)."
+                    diametro:
+                      type: "number"
+                      description: "Diametro (solo para planetas)."
+                    clima:
+                      type: "string"
+                      description: "Clima (solo para planetas)."
+                    gravedad:
+                      type: "string"
+                      description: "Gravedad (solo para planetas)."
+                    terreno:
+                      type: "string"
+                      description: "Terreno (solo para planetas)."
+                    agua_superficial:
+                      type: "number"
+                      description: "Agua superficial (solo para planetas)."
+                    poblacion:
+                      type: "integer"
+                      description: "Poblacion (solo para planetas)."
+              404:
+                description: "Entidad no encontrada."
+                schema:
+                  type: "object"
+                  properties:
+                    error:
+                      type: "string"
+                      description: "Mensaje de error indicando que la entidad no fue encontrada."
+              500:
+                description: "Error interno del servidor."
+                schema:
+                  type: "object"
+                  properties:
+                    error:
+                      type: "string"
+                      description: "Mensaje de error indicando que no se pudo recuperar la entidad."
+
+resources:
+  Resources:
+    TestIndraTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: TestIndraTable
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-openapi-documentation
+
+custom:
+  documentation:
+    version: '1.0.0'
+    title: TEST INDRA API
+    description: API para gestionar recursos de SWAPI

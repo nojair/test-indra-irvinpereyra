@@ -1,0 +1,29 @@
+openapi: 3.0.0
+components:
+  schemas: {}
+  securitySchemes: {}
+info:
+  title: TEST INDRA API
+  description: API para gestionar recursos de SWAPI
+  version: 1.0.0
+paths:
+  '/swapi/{resourceType}/{id}':
+    get:
+      operationId: getTranslatedResource
+      summary: Obtener un personaje por TIPO DE RECURSO y ID
+      description: >-
+        Devuelve un recurso específico de SWAPI dado su RESOURCETYPE (films,
+        people, planets, species, starships, vehicles) y ID.
+      responses: {}
+  /entities:
+    post:
+      operationId: createEntity
+      summary: Guarda un recurso de SWAPI en DynamoDB
+      description: Crea un nuevo recurso en la base de datos.
+      responses: {}
+  '/entities/{entity_id}':
+    get:
+      operationId: getSavedEntity
+      summary: Obtener una entidad guardada
+      description: Recupera una entidad guardada en la base de datos utilizando su ID.
+      responses: {}
